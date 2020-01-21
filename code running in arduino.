@@ -1,0 +1,208 @@
+// this code is developed by KAMRAN HASSAN for the group wings of fire in the january 2020
+//farward ultrasonic sensor pins 
+const int FtrigPin = 8; 
+const int FechoPin = 9;
+//right ultrasonic sensor pins
+const int RtrigPin = A3; 
+const int RechoPin = A2;
+//left ultrasonic sensor pins
+const int LtrigPin = 10; 
+const int LechoPin = 11;
+
+// Initial dump value 
+float Fxdistance=0;
+float Rxdistance=0;
+float Lxdistance=0;
+
+//time taken value 
+float Fduration=0;
+float Rduration=0;
+float Lduration=0;
+
+//final output value of distance
+float Fdistance=0;
+float Rdistance=0;
+float Ldistance=0;
+
+//motor input signal pins
+int mp1 = 3;
+int mp2 = 4;
+int mp3 = 5;
+int mp4 = 6;
+//bolean value 
+bool F=false;
+bool R=false;
+bool L=false;
+
+
+void setup() {
+ pinMode(FtrigPin, OUTPUT); 
+ pinMode(FechoPin, INPUT); 
+ pinMode(RtrigPin, OUTPUT); 
+ pinMode(RechoPin, INPUT); 
+ pinMode(LtrigPin, OUTPUT); 
+ pinMode(LechoPin, INPUT); 
+ Serial.begin(9600);
+  
+  pinMode(mp1,OUTPUT);
+  pinMode(mp2,OUTPUT);
+  pinMode(mp3,OUTPUT);
+  pinMode(mp4,OUTPUT);
+}
+
+void loop() {
+// now getting the possible path 
+  distfarward();
+  if(Fdistance>5) {
+    F=true;
+    }
+    else {
+      F=false;}
+  distright();
+  if(Rdistance>5)  {
+    R=true;
+    }
+    else {
+    R=false;
+    }
+  distleft();
+  if(Ldistance>5)  {
+    L=true;
+  }
+  else {
+    L=false;
+  }
+//  Serial.println(T,R,L);
+// using left handed algorithum so it will take always take left turn if it have all the possible three direction to go
+if(R==true && L==true && F==true) {
+  left();
+  farward();
+}
+else if(R==false && L==true && F==true) {
+      left();
+  farward();
+}
+else if(R==false && L==true && F==false) {
+    left();
+  farward();
+}
+// it's sencond priority will be farward direction
+  else if(R==true && L==false && F==true) {
+    farward();
+  }
+  else if(R==false && L==false && F==true) {
+    farward();
+  }
+  // it will take right when it has no direction to go except 
+  else if(R==true && L==false && F==false) {
+    right();
+  }
+  else {
+    stoped();
+  }
+  }
+
+  void distfarward(){
+Fdistance=0;
+for(int i=0;i<11;i++){ 
+ digitalWrite(FtrigPin, LOW); 
+ delayMicroseconds(2); 
+ digitalWrite(FtrigPin, HIGH); 
+ delayMicroseconds(10); 
+ digitalWrite(FtrigPin, LOW); 
+
+ Fduration = pulseIn(FechoPin, HIGH);
+
+ Fxdistance = (Fduration*.0343)/2;
+// Serial.println("fdistrawvalue is  ");
+// Serial.print(Fxdistance);
+ Fdistance=Fxdistance+Fdistance;
+}
+ Fdistance=Fdistance/10;
+ Serial.print("FDistance: "); 
+ Serial.println(Fdistance); 
+ 
+  }
+
+  void distright() {
+Rdistance=0;
+for(int j=0;j<11;j++) {
+ digitalWrite(RtrigPin, LOW); 
+ delayMicroseconds(2); 
+ digitalWrite(RtrigPin, HIGH); 
+ delayMicroseconds(10); 
+ digitalWrite(RtrigPin, LOW); 
+
+ Rduration = pulseIn(RechoPin, HIGH);
+
+ Rxdistance = (Rduration*.0343)/2;
+ Rdistance=Rdistance+Rxdistance;
+}
+Rdistance=Rdistance/10;
+ Serial.print("RDistance: "); 
+ Serial.println(Rdistance); 
+    }
+
+    void distleft()  {
+Ldistance=0;
+ for(int k=0;k<11;k++)  {
+ digitalWrite(LtrigPin, LOW); 
+ delayMicroseconds(2); 
+ digitalWrite(LtrigPin, HIGH); 
+ delayMicroseconds(10); 
+ digitalWrite(LtrigPin, LOW); 
+
+ Lduration = pulseIn(LechoPin, HIGH);
+
+ Lxdistance = (Lduration*.0343)/2;
+   Ldistance=Ldistance+Lxdistance;   
+      }
+ Serial.print("LDistance: "); 
+ Serial.println(Ldistance/10);
+ Ldistance=Ldistance/10; 
+      
+      }
+
+
+void farward() {
+  Serial.println(" taking farward move");
+  digitalWrite(mp1,HIGH);
+  digitalWrite(mp2,LOW);
+  digitalWrite(mp3,HIGH);
+  digitalWrite(mp4,LOW);
+  delay(500);
+  }
+
+  void stoped() {
+    Serial.println(" taking stop move");
+  digitalWrite(mp1,LOW);
+  digitalWrite(mp2,LOW);
+  digitalWrite(mp3,LOW);
+  digitalWrite(mp4,LOW); 
+  delay(4000);
+    }
+  void uturn() {
+    Serial.println(" taking uturn move");
+  digitalWrite(mp1,LOW);
+  digitalWrite(mp2,HIGH);
+  digitalWrite(mp3,HIGH);
+  digitalWrite(mp4,LOW);
+  delay(6500);
+    }
+
+    void left() {
+      Serial.println(" taking left move");
+  digitalWrite(mp1,HIGH);
+  digitalWrite(mp2,LOW);
+  digitalWrite(mp3,LOW);
+  digitalWrite(mp4,HIGH);
+  delay(3250);
+      }
+    void right() {
+      Serial.println(" taking right move");
+  digitalWrite(mp1,LOW);
+  digitalWrite(mp2,HIGH);
+  digitalWrite(mp3,HIGH);
+  digitalWrite(mp4,LOW);
+  delay(3250);
+      }
